@@ -1,0 +1,14 @@
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FilmZone</title><link rel="stylesheet" href="/style.css"></head><body>
+<header><a class="logo" href="/">Film<span>Zone</span></a><nav><a href="/">خانه</a><a href="#movies">فیلم‌ها</a><a href="#series">سریال‌ها</a><a href="/admin">پنل مدیریت</a></nav><input id="q" placeholder="جستجو..."></header>
+<section class="hero"><div><small>FILMZONE</small><h1>دنیای فیلم و سریال</h1><p>فیلم‌ها و سریال‌های مجاز خودت را در یک سایت حرفه‌ای منتشر و مدیریت کن.</p></div></section>
+<main><div class="head"><h2>همه عناوین</h2><select id="type"><option value="">همه</option><option>فیلم</option><option>سریال</option></select></div><div id="grid" class="grid"></div></main>
+<div id="modal" class="modal"><div class="box"><button onclick="closeM()">×</button><div id="m"></div></div></div>
+<script>
+let data=[];
+async function load(){data=await (await fetch('/api/titles')).json();render()}
+function render(){let q=document.getElementById('q').value.toLowerCase(),t=document.getElementById('type').value;let x=data.filter(a=>(!q||a.title.toLowerCase().includes(q))&&(!t||a.type===t));document.getElementById('grid').innerHTML=x.map(a=>`<article class="card"><img src="${a.poster||'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80'}"><div><h3>${a.title}</h3><p>${a.year} • ${a.type} • ${a.genre||'بدون ژانر'}</p><b>★ ${a.rating}</b><br><button onclick='details(${a.id})'>جزئیات</button>${a.video?`<button onclick='play(${JSON.stringify(a.video)})'>▶ پخش</button>`:''}${a.download?`<a class="download" href="${a.download}" download>⬇ دانلود</a>`:''}</div></article>`).join('')||'<p>موردی پیدا نشد.</p>'}
+function details(id){let a=data.find(x=>x.id===id);document.getElementById('m').innerHTML=`<img class="detailimg" src="${a.poster||''}"><h2>${a.title}</h2><p>${a.description||''}</p><p>${a.year} • ${a.type} • ${a.genre} • ★ ${a.rating}</p>${a.video?`<button onclick='play(${JSON.stringify(a.video)})'>▶ پخش</button>`:''}${a.download?`<a class="download" href="${a.download}" download>⬇ دانلود</a>`:''}`;document.getElementById('modal').classList.add('on')}
+function play(url){document.getElementById('m').innerHTML=`<video class="video" controls autoplay src="${url}"></video>`;document.getElementById('modal').classList.add('on')}
+function closeM(){document.getElementById('modal').classList.remove('on')}
+q.oninput=render;type.onchange=render;load();
+</script></body></html>
